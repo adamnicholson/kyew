@@ -13,26 +13,19 @@ $publisher = new Predis\Client([
 
 $kyew = new \Kyew\Kyew($publisher);
 
-// Set a counter which we can refer to, to see how many of the commands have completed
-$publisher->set($counterKey = 'job.sleep.' . getmypid(), 0);
-
 // Queue some jobs
+$jobs = [];
 foreach (range(1, 4) as $i) {
-    var_dump($i);
-    // Do this 4 times. Each time sleeps for 5 seconds, so this would normally take
-    // 20 seconds to finish
-    $kyew->queue(function() use ($publisher, $counterKey) {
+    $jobs[] = function() use ($publisher) {
         sleep(5);
-        $publisher->incr($counterKey);
-    });
+    };
 }
 
-// Wait them to all execute
-while ($publisher->get($counterKey) < 4) {
-    usleep(500);
-}
+$kyew->await($jobs);
+
+echo "All " . count($jobs) . " jobs executed" . PHP_EOL;
 
 // Stop the stopwatch
 $time_end = microtime(true);
 $time = $time_end - $time_start;
-echo "Executed 20 seconds worth of sleep() executions in $time seconds\n";
+echo "Executed 20 seconds worth of sleep() executions in $time seconds" . PHP_EOL;
