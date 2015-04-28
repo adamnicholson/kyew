@@ -2,7 +2,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-$runner = new \Kyew\MasterJobRunner(
+$runner = new \Kyew\Deamon\Master(
     new Predis\Client([
         "scheme" => "tcp",
         "host" => "127.0.0.1",

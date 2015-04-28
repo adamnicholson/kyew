@@ -2,7 +2,7 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-$runner = new \Kyew\SlaveJobRunner(
+$runner = new \Kyew\Deamon\Slave(
     new Predis\Client([
         "scheme" => "tcp",
         "host" => "127.0.0.1",

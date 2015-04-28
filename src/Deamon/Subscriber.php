@@ -1,6 +1,6 @@
 <?php
 
-namespace Kyew;
+namespace Kyew\Deamon;
 
 use Predis\Client;
 use Predis\PubSub\Consumer;

@@ -1,6 +1,7 @@
 {
     "require": {
-        "predis/predis": "~1.0"
+        "predis/predis": "~1.0",
+        "jeremeamia/SuperClosure": "~2.1"
     },
     "autoload": {
         "psr-4": {

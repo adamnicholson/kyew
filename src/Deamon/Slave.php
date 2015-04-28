@@ -1,8 +1,10 @@
 <?php
 
-namespace Kyew;
+namespace Kyew\Deamon;
 
-class SlaveJobRunner extends Subscriber
+use Kyew\Deamon\Subscriber;
+
+class Slave extends Subscriber
 {
     protected function handleMessage($message)
     {
@@ -12,12 +14,10 @@ class SlaveJobRunner extends Subscriber
         if (($payload = $this->publisher->get($message->payload)) && $this->publisher->del($message->payload)) {
             echo "Processing job {$message->payload} ...";
 
-            /** @var Job $job */
-            $job = unserialize($payload);
-            $handlerclass = get_class($job) . 'Handler';
-            $handler = new $handlerclass;
-            $handler->handle($job);
+            $handler = unserialize($payload);
+            call_user_func($handler);
             echo "Done" . PHP_EOL;
+
             $this->publisher->publish('console', "Completed {$message->payload}");
         }
     }

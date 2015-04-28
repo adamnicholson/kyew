@@ -1,10 +1,11 @@
 <?php
 
-namespace Kyew;
+namespace Kyew\Deamon;
 
+use Kyew\Deamon\Subscriber;
 use Predis\PubSub\Consumer;
 
-class MasterJobRunner extends Subscriber
+class Master extends Subscriber
 {
     private $consoleChannel = 'console';
 

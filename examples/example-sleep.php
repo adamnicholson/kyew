@@ -11,20 +11,24 @@ $publisher = new Predis\Client([
     "port" => 6379
 ]);
 
-$queue = function(\Kyew\Job $job) use ($publisher) {
-    $publisher->publish('queue', serialize($job));
-};
+$kyew = new \Kyew\Kyew($publisher);
 
 // Set a counter which we can refer to, to see how many of the commands have completed
-$publisher->set('SleepJobsRan', 0);
+$publisher->set($counterKey = 'job.sleep.' . getmypid(), 0);
 
-$queue(new \Kyew\Examples\SleepJob());
-$queue(new \Kyew\Examples\SleepJob());
-$queue(new \Kyew\Examples\SleepJob());
-$queue(new \Kyew\Examples\SleepJob());
+// Queue some jobs
+foreach (range(1, 4) as $i) {
+    var_dump($i);
+    // Do this 4 times. Each time sleeps for 5 seconds, so this would normally take
+    // 20 seconds to finish
+    $kyew->queue(function() use ($publisher, $counterKey) {
+        sleep(5);
+        $publisher->incr($counterKey);
+    });
+}
 
 // Wait them to all execute
-while ($publisher->get('SleepJobsRan') < 4) {
+while ($publisher->get($counterKey) < 4) {
     usleep(500);
 }
 
