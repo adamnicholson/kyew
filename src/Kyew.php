@@ -41,9 +41,10 @@ class Kyew
         $this->publisher->set($batchId, 0);
 
         // Queue the jobs
-        foreach ($jobs as $job) {
-            $this->queue(function() use ($job, $batchId) {
-                    $job();
+        foreach ($jobs as $i => $job) {
+            $this->queue(function() use ($job, $batchId, $i) {
+                    $response = $job();
+                    $this->publisher->set($batchId . '.' . $i, $response);
                     $this->publisher->incr($batchId);
             });
         }
@@ -52,10 +53,19 @@ class Kyew
         while ($this->publisher->get($batchId) < count($jobs)) {
             usleep(500);
         }
+        $this->publisher->del($batchId);
 
         // Fire the callback if passed
         if ($next) {
-            return $next();
+            $next();
         }
+
+        // Return the responses
+        $result = [];
+        foreach (array_keys($jobs) as $key) {
+            $result[$key] = $this->publisher->get($batchId . '.' . $key);
+            $this->publisher->del($batchId . '.' . $key);
+        }
+        return $result;
     }
 }

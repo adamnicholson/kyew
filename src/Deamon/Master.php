@@ -2,7 +2,6 @@
 
 namespace Kyew\Deamon;
 
-use Kyew\Deamon\Subscriber;
 use Predis\PubSub\Consumer;
 
 class Master extends Subscriber
