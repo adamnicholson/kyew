@@ -30,11 +30,21 @@ for ($i = 0; $i < 4; $i++) {
 }
 
 // Execute the jobs and wait for the response
-$kyew->await($jobs);
+$response = $kyew->await($jobs);
+// $response = [0 => "Job #1", 1 => "Job #2", 2 => "Job #3", 3 => "Job #4"]
+```
+A queue worker will automatically be started for each job, so the above will only take 4 seconds to complete, whereas with normal blocking PHP it would take 20 seconds.
 
-// A queue worker will automatically be started for each job, so the above 
-// will only take 4 seconds to complete, whereas with normal blocking PHP 
-// it would take 20 seconds
+As shown in the example, `await()` returns an array of responses from your jobs with array kets matching the jobs array. The below code demonstrates this:
+
+```php
+$jobs = [];
+$jobs['foo'] = function() { return 'Foo return value'; }
+$jobs['bar'] = function() { return 'Bar return value'; }
+
+$responses = $kyew->await($jobs);
+// $responses['foo'] == 'Foo return value';
+// $responses['bar'] == 'Bar return value';
 ```
 
 ### The Daemon
