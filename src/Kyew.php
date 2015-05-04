@@ -28,6 +28,7 @@ class Kyew
      *
      * @param array|callable $jobs
      * @param callable|null $next
+     * @return mixed Array of return values from the jobs with matching keys
      */
     public function await($jobs, callable $next = null)
     {

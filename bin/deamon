@@ -4,7 +4,7 @@
 declare(ticks=1);
 
 function start($daemon) {
-    return exec('php ' . $daemon . '.php' . ' > /dev/null 2>&1 & echo $!; ', $output);
+    return exec('php ' . __DIR__ . '/' . $daemon . ' > /dev/null 2>&1 & echo $!; ', $output);
 }
 function kill($pid) {
     exec('kill ' . $pid, $output);
@@ -14,9 +14,10 @@ function info($message) {
 }
 function shutdown($signal = null)
 {
+    global $master, $workers;
+
     info('');
     info('Shutting down...');
-    global $master, $workers;
     $i = 0;
     foreach ($workers as $worker) {
         kill($worker);
@@ -35,14 +36,14 @@ pcntl_signal(SIGTERM, "shutdown");
 pcntl_signal(SIGINT, "shutdown");
 
 // Start the manager
-$master = start('master');
-info("Started worker: $master");
+$master = start('manager');
+info("Started manager: $master");
 
 // Start the workers
 $workers = [];
 $requestedWorkers = (int) isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : 2;
 foreach (range(1, $requestedWorkers) as $i) {
-    $pid = start('slave');
+    $pid = start('worker');
     $workers[$pid] = $pid;
 }
 
