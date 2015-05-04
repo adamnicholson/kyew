@@ -41,10 +41,9 @@ class Kyew
      * Queue one or more jobs, wait for them to finish, then execute a callback
      *
      * @param array|callable $jobs
-     * @param callable|null $next
      * @return mixed Array of return values from the jobs with matching keys
      */
-    public function await($jobs, callable $next = null)
+    public function await($jobs)
     {
         if ($this->autoStartWorkers) {
             $this->startWorkers(count($jobs));
@@ -74,11 +73,6 @@ class Kyew
         }
         $this->publisher->del($batchId);
 
-        // Fire the callback if passed
-        if ($next) {
-            $next();
-        }
-
         // Return the responses
         $result = [];
         foreach (array_keys($jobs) as $key) {
@@ -95,7 +89,6 @@ class Kyew
      */
     private function startWorkers($num)
     {
-        echo "Starting workers" . PHP_EOL;
         foreach (range(1, $num) as $i) {
             $this->startWorker();
         }
