@@ -3,7 +3,7 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$runner = new \Kyew\Deamon\Slave(
+$runner = new \Kyew\Deamon\Worker(
     new Predis\Client([
         "scheme" => "tcp",
         "host" => "127.0.0.1",
@@ -16,7 +16,8 @@ $runner = new \Kyew\Deamon\Slave(
         "port" => 6379,
         "read_write_timeout" => -1
     ]),
-    'queue-job-waiting'
+    'kyew.job.new',
+    'kyew.worker.shutdown'
 );
 
 $runner->run();

@@ -7,10 +7,19 @@ use SuperClosure\Serializer;
 
 class Kyew
 {
-    public function __construct(Client $redis)
+    /**
+     * @var bool
+     */
+    private $autoStartWorkers;
+    private $binDir;
+    private $workers = [];
+
+    public function __construct(Client $redis, $autoStartWorkers = true)
     {
+        $this->binDir = realpath(__DIR__ . '/../bin');
         $this->serializer = new Serializer();
         $this->publisher = $redis;
+        $this->autoStartWorkers = $autoStartWorkers;
     }
 
     /**
@@ -20,7 +29,12 @@ class Kyew
      */
     public function queue(callable $job)
     {
-        $this->publisher->publish('queue', $this->serializer->serialize($job));
+        // Put the job in the database
+        $jobId = uniqid('kew.job.', true);
+        $this->publisher->set($jobId, $this->serializer->serialize($job));
+
+        // Announce that the job is waiting to be processed
+        $this->publisher->publish('kyew.job.new', $jobId);
     }
 
     /**
@@ -32,6 +46,10 @@ class Kyew
      */
     public function await($jobs, callable $next = null)
     {
+        if ($this->autoStartWorkers) {
+            $this->startWorkers(count($jobs));
+        }
+
         // Only 1 job was passed; transform it into an array of 1 jobs
         if (is_callable($jobs)) {
             $jobs = [$jobs];
@@ -68,5 +86,44 @@ class Kyew
             $this->publisher->del($batchId . '.' . $key);
         }
         return $result;
+    }
+
+    /**
+     * Start a number of workers
+     *
+     * @param $num
+     */
+    private function startWorkers($num)
+    {
+        echo "Starting workers" . PHP_EOL;
+        foreach (range(1, $num) as $i) {
+            $this->startWorker();
+        }
+    }
+
+    /**
+     * Start a worker and save its PID to memory
+     */
+    private function startWorker()
+    {
+        $this->workers[] = exec('php ' . $this->binDir . '/worker > /dev/null 2>&1 & echo $!; ', $output);
+    }
+
+    /**
+     * @param $pid
+     */
+    private function stopWorker($pid)
+    {
+        $this->publisher->publish('kyew.worker.shutdown', $pid);
+    }
+
+    /**
+     * Stop all the workers
+     */
+    public function __destruct()
+    {
+        foreach ($this->workers as $worker) {
+            $this->stopWorker($worker);
+        }
     }
 }

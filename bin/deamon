@@ -14,7 +14,7 @@ function info($message) {
 }
 function shutdown($signal = null)
 {
-    global $master, $workers;
+    global $workers;
 
     info('');
     info('Shutting down...');
@@ -24,20 +24,13 @@ function shutdown($signal = null)
         unset($workers[$worker]);
         $i++;
     }
-    info("\tShut down $i workers");
-    kill($master);
-    info("\tShut down worker manager");
-    info("\tShut down successful");
+    info("\tSuccessfully shut down $i workers");
     exit;
 }
 
 // Shutdown handler
 pcntl_signal(SIGTERM, "shutdown");
 pcntl_signal(SIGINT, "shutdown");
-
-// Start the manager
-$master = start('manager');
-info("Started manager: $master");
 
 // Start the workers
 $workers = [];
