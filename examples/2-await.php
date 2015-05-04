@@ -9,18 +9,21 @@ $kyew = new \Kyew\Kyew(new Predis\Client([
     "port" => 6379
 ]));
 
-// Put some jobs into an array
+// Put some jobs into an array. A "Job" is simply a PHP closure
 $jobs = [];
-foreach (range(1, 4) as $i) {
-    $jobs[] = function() use ($i) {
+for ($i = 0; $i < 4; $i++) {
+    $jobs[] = function() {
         // Do some slow thing
         sleep(5);
-        return 'Job #' . $i;
     };
 }
 
-// Execute the queue via the workers and wait for the response
+// Execute the jobs and wait for the response
 $response = $kyew->await($jobs);
 // $response = [0 => "Job #1", 1 => "Job #2", 2 => "Job #3", 3 => "Job #4"]
+
+// A queue worker will automatically be started for each job, so the above
+// will only take 4 seconds to complete, whereas with normal blocking PHP
+// it would take 20 seconds
 
 echo "Finished in  " . (microtime(true) - $startAt) . " seconds" . PHP_EOL;
