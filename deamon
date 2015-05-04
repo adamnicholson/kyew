@@ -1,0 +1,55 @@
+#!/usr/bin/php
+<?php
+
+declare(ticks=1);
+
+function start($daemon) {
+    return exec('php ' . $daemon . '.php' . ' > /dev/null 2>&1 & echo $!; ', $output);
+}
+function kill($pid) {
+    exec('kill ' . $pid, $output);
+}
+function info($message) {
+    echo $message . PHP_EOL;
+}
+function shutdown($signal = null)
+{
+    info('');
+    info('Shutting down...');
+    global $master, $workers;
+    $i = 0;
+    foreach ($workers as $worker) {
+        kill($worker);
+        unset($workers[$worker]);
+        $i++;
+    }
+    info("\tShut down $i workers");
+    kill($master);
+    info("\tShut down worker manager");
+    info("\tShut down successful");
+    exit;
+}
+
+// Shutdown handler
+pcntl_signal(SIGTERM, "shutdown");
+pcntl_signal(SIGINT, "shutdown");
+
+// Start the manager
+$master = start('master');
+info("Started worker: $master");
+
+// Start the workers
+$workers = [];
+$requestedWorkers = (int) isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : 2;
+foreach (range(1, $requestedWorkers) as $i) {
+    $pid = start('slave');
+    $workers[$pid] = $pid;
+}
+
+// Loop
+info('Deamon started with ' . $requestedWorkers . ' workers: [' . implode(',', $workers) . ']');
+info('');
+info('Use Ctrl+C to quit');
+while (true) {
+    usleep(500);
+}
