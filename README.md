@@ -23,18 +23,29 @@ $kyew = new \Kyew\Kyew($redis);
 // Put some jobs into an array. A "Job" is simply a PHP closure
 $jobs = [];
 for ($i = 0; $i < 4; $i++) {
-    $jobs[] = function() {
+    $jobs[] = function() use ($i) {
         // Do some slow thing
         sleep(5);
+        return "Job #$i";
     };
 }
 
 // Execute the jobs and wait for the response
-$kyew->await($jobs);
+$responses = $kyew->await($jobs);
+// $responses = [0 => "Job #0", 1 => "Job #1", 2 => "Job #2", 3 => "Job #3"]
+```
+A queue worker will automatically be started for each job, so the above will only take 4 seconds to complete, whereas with normal blocking PHP it would take 20 seconds.
 
-// A queue worker will automatically be started for each job, so the above 
-// will only take 4 seconds to complete, whereas with normal blocking PHP 
-// it would take 20 seconds
+As shown in the example, `await()` returns an array of responses from your jobs with array kets matching the jobs array. The below code demonstrates this:
+
+```php
+$jobs = [];
+$jobs['foo'] = function() { return 'Foo return value'; }
+$jobs['bar'] = function() { return 'Bar return value'; }
+
+$responses = $kyew->await($jobs);
+// $responses['foo'] == 'Foo return value';
+// $responses['bar'] == 'Bar return value';
 ```
 
 ### The Daemon
