@@ -2,6 +2,7 @@
 
 namespace Kyew;
 
+use Kyew\Exception\TimeoutException;
 use Predis\Client;
 use SuperClosure\Serializer;
 
@@ -12,6 +13,8 @@ class Kyew
      */
     private $autoStartWorkers;
     private $binDir;
+    private $limit = 100;
+    private $timeout = 15;
     private $workers = [];
 
     public function __construct(Client $redis, $autoStartWorkers = true)
@@ -68,8 +71,14 @@ class Kyew
         }
 
         // Wait for the jobs to all execute
+        $startAt = new \DateTimeImmutable();
+        $timeoutAt = $startAt->add(new \DateInterval('PT' . $this->timeout . 'S'));
         while ($this->publisher->get($batchId) < count($jobs)) {
-            usleep(500);
+            var_dump($this->publisher->get($batchId));
+            if ($startAt->getTimestamp() >= $timeoutAt->getTimestamp()) {
+                throw new TimeoutException;
+            }
+            usleep(1000);
         }
         $this->publisher->del($batchId);
 
@@ -82,6 +91,11 @@ class Kyew
         return $result;
     }
 
+    public function limitWorkers($limit)
+    {
+        $this->limit = (int) $limit;
+    }
+
     /**
      * Start a number of workers
      *
@@ -90,6 +104,9 @@ class Kyew
     private function startWorkers($num)
     {
         foreach (range(1, $num) as $i) {
+            if (count($this->workers) >= $this->limit) {
+                return;
+            }
             $this->startWorker();
         }
     }
