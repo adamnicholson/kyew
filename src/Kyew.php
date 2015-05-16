@@ -45,6 +45,7 @@ class Kyew
      *
      * @param array|callable $jobs
      * @return mixed Array of return values from the jobs with matching keys
+     * @throws TimeoutException
      */
     public function await($jobs)
     {
