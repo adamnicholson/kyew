@@ -1,4 +1,5 @@
 {
+    "name": "adamnicholson/kyew",
     "require": {
         "predis/predis": "~1.0",
         "jeremeamia/SuperClosure": "~2.1"
