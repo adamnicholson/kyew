@@ -2,6 +2,8 @@
 
 Small queue package to make asynchronously processing tasks in PHP simple.
 
+> This library is very much a work in progress prototype. I'd strongly suggest testing thoroughly before production use.
+
 Tasks are put into a Redis queue, which are then executed by individual PHP processes. The queue workers can either be manually created using the daemon, or can be automatically started when required.
 
 Requirements
