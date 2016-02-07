@@ -30,4 +30,9 @@ class InMemoryPubSub implements EventPublisher, EventSubscriber
     {
         $this->listeners[$event][] = $callback;
     }
+
+    public function recheck($event)
+    {
+        // 
+    }
 }

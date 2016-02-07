@@ -41,7 +41,8 @@ class Task
     }
 
     /**
-     * Block further script execution utnil isComplete() returns true
+     * Block further script execution until isComplete() returns true
+     *
      * @param int $timeout Number of seconds to wait before throwing a TimeoutException
      * @return mixed The return value of the completed task
      * @throws TimeoutException
@@ -64,6 +65,7 @@ class Task
 
     /**
      * @return bool
+     * @todo Fire $this->subscriber->recheck()
      */
     public function isComplete(): bool
     {
