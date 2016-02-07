@@ -15,6 +15,13 @@ Some examples where this could be useful include:
 - A queue package (see [supported queues pacakges](#))
 - Redis server
 
+## Example
+
+@todo
+
+## Installation
+
+@todo
 
 ## API
 
