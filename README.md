@@ -1,72 +1,40 @@
 # Kyew
 
-Small queue package to make asynchronously processing tasks in PHP simple.
+> This is a work in progress.
 
-Tasks are put into a Redis queue, which are then executed by individual PHP processes. The queue workers can either be manually created using the daemon, or can be automatically started when required.
+Kyew is a thin layer on top of your existing *queue* package allowing you to push tasks to the queue and await the task completing.
 
-Requirements
+Some examples where this could be useful include:
 
+- Executing multiple tasks asynchronously
+- Pushing resource intensive tasks to a more performant server
+
+## Requirements
+
+- PHP7
+- A queue package (see [supported queues pacakges](#))
 - Redis server
 
-## Example
 
-### Asynchronous tasks
-```php
-$redis = new Predis\Client([
-    "scheme" => "tcp",
-    "host" => "127.0.0.1",
-    "port" => 6379
-]);
+## API
 
-$kyew = new \Kyew\Kyew($redis);
-
-// Put some jobs into an array. A "Job" is simply a PHP closure
-$jobs = [];
-for ($i = 0; $i < 4; $i++) {
-    $jobs[] = function() use ($i) {
-        // Do some slow thing
-        sleep(5);
-        return "Job #$i";
-    };
-}
-
-// Execute the jobs and wait for the response
-$responses = $kyew->await($jobs);
-// $responses = [0 => "Job #0", 1 => "Job #1", 2 => "Job #2", 3 => "Job #3"]
-```
-A queue worker will automatically be started for each job, so the above will only take 4 seconds to complete, whereas with normal blocking PHP it would take 20 seconds.
-
-As shown in the example, `await()` returns an array of responses from your jobs with array kets matching the jobs array. The below code demonstrates this:
+### `Kyew::async(callable $task)`
+`async` accepts a single callable as its only parameter and will return an instance of `Task`. 
 
 ```php
-$jobs = [];
-$jobs['foo'] = function() { return 'Foo return value'; }
-$jobs['bar'] = function() { return 'Bar return value'; }
-
-$responses = $kyew->await($jobs);
-// $responses['foo'] == 'Foo return value';
-// $responses['bar'] == 'Bar return value';
+$task = $kyew->async(function () {
+    // Do some slow CPU intensive operation
+    return 'foo';
+});
 ```
+The callable is immediately handed to the queue library to be executed. The `Task` instance will listen to the queue process and be notified when the callable has finished executing. 
 
-### The Daemon
-Use the deamon if you'd prefer to control the workers manually, rather than letting Kyew automatically spawn a worker for each job.
-
-Start the daemon with `5` workers:
-
-```
-vendor/bin/kyew 5
-```
-
-Then disable automatically starting workers when you instantiate Kyew using the second constructor argument:
+### `Task::await()`
+`await` will block further code execution until the given Task has completed exectuing.
 
 ```php
-$redis = new Predis\Client([
-    "scheme" => "tcp",
-    "host" => "127.0.0.1",
-    "port" => 6379
-]);
-
-$kyew = new \Kyew\Kyew($redis, false);
+$task->await();
+echo $task->getReturnValue(); // (string) "foo"
 ```
 
 ## Contributing

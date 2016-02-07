@@ -2,139 +2,40 @@
 
 namespace Kyew;
 
-use Kyew\Exception\TimeoutException;
-use Predis\Client;
-use SuperClosure\Serializer;
-
 class Kyew
 {
     /**
-     * @var bool
+     * @var EventSubscriber
      */
-    private $autoStartWorkers;
-    private $binDir;
-    private $limit = 100;
-    private $timeout = 15;
-    private $workers = [];
+    private $subscriber;
+    /**
+     * @var Queue
+     */
+    private $queue;
 
-    public function __construct(Client $redis, $autoStartWorkers = true)
+    /**
+     * Kyew constructor.
+     * @param EventSubscriber $subscriber
+     * @param Queue $queue
+     */
+    public function __construct(EventSubscriber $subscriber, Queue $queue)
     {
-        $this->binDir = realpath(__DIR__ . '/../bin');
-        $this->serializer = new Serializer();
-        $this->publisher = $redis;
-        $this->autoStartWorkers = $autoStartWorkers;
+        $this->subscriber = $subscriber;
+        $this->queue = $queue;
     }
 
     /**
-     * Queue a job
-     *
-     * @param callable $job
+     * @param callable $callback A task to start processing in the background
+     * @return Task
      */
-    public function queue(callable $job)
+    public function async(callable $callback): Task
     {
-        // Put the job in the database
-        $jobId = uniqid('kew.job.', true);
-        $this->publisher->set($jobId, $this->serializer->serialize($job));
+        $id = TaskIdFactory::new();
 
-        // Announce that the job is waiting to be processed
-        $this->publisher->publish('kyew.job.new', $jobId);
-    }
+        $task = new Task($this->subscriber, $id);
 
-    /**
-     * Queue one or more jobs, wait for them to finish, then execute a callback
-     *
-     * @param array|callable $jobs
-     * @return mixed Array of return values from the jobs with matching keys
-     * @throws TimeoutException
-     */
-    public function await($jobs)
-    {
-        if ($this->autoStartWorkers) {
-            $this->startWorkers(count($jobs));
-        }
+        $this->queue->push($id, $callback);
 
-        // Only 1 job was passed; transform it into an array of 1 jobs
-        if (is_callable($jobs)) {
-            $jobs = [$jobs];
-        }
-
-        // Store a batch ID so we can track when all jobs are complete
-        $batchId = uniqid('kyew.batch.', true);
-        $this->publisher->set($batchId, 0);
-
-        // Queue the jobs
-        foreach ($jobs as $i => $job) {
-            $this->queue(function() use ($job, $batchId, $i) {
-                    $response = $job();
-                    $this->publisher->set($batchId . '.' . $i, $response);
-                    $this->publisher->incr($batchId);
-            });
-        }
-
-        // Wait for the jobs to all execute
-        $startAt = new \DateTimeImmutable();
-        $timeoutAt = $startAt->add(new \DateInterval('PT' . $this->timeout . 'S'));
-        while ($this->publisher->get($batchId) < count($jobs)) {
-            var_dump($this->publisher->get($batchId));
-            if ($startAt->getTimestamp() >= $timeoutAt->getTimestamp()) {
-                throw new TimeoutException;
-            }
-            usleep(1000);
-        }
-        $this->publisher->del($batchId);
-
-        // Return the responses
-        $result = [];
-        foreach (array_keys($jobs) as $key) {
-            $result[$key] = $this->publisher->get($batchId . '.' . $key);
-            $this->publisher->del($batchId . '.' . $key);
-        }
-        return $result;
-    }
-
-    public function limitWorkers($limit)
-    {
-        $this->limit = (int) $limit;
-    }
-
-    /**
-     * Start a number of workers
-     *
-     * @param $num
-     */
-    private function startWorkers($num)
-    {
-        foreach (range(1, $num) as $i) {
-            if (count($this->workers) >= $this->limit) {
-                return;
-            }
-            $this->startWorker();
-        }
-    }
-
-    /**
-     * Start a worker and save its PID to memory
-     */
-    private function startWorker()
-    {
-        $this->workers[] = exec('php ' . $this->binDir . '/worker > /dev/null 2>&1 & echo $!; ', $output);
-    }
-
-    /**
-     * @param $pid
-     */
-    private function stopWorker($pid)
-    {
-        $this->publisher->publish('kyew.worker.shutdown', $pid);
-    }
-
-    /**
-     * Stop all the workers
-     */
-    public function __destruct()
-    {
-        foreach ($this->workers as $worker) {
-            $this->stopWorker($worker);
-        }
+        return $task;
     }
 }
