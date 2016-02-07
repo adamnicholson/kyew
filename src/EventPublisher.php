@@ -15,5 +15,5 @@ interface EventPublisher
      * @param $data
      * @return mixed
      */
-    public function publish(string $event, $data);
+    public function publish($event, $data);
 }

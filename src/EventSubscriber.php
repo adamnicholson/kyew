@@ -18,5 +18,5 @@ interface EventSubscriber
      *                           first argument to the callback.
      * @return mixed
      */
-    public function on(string $event, callable $callback);
+    public function on($event, callable $callback);
 }

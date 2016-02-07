@@ -12,7 +12,7 @@ class InMemoryPubSub implements EventPublisher, EventSubscriber
     /**
      * @inheritdoc
      */
-    public function publish(string $event, $data)
+    public function publish($event, $data)
     {
         if (!isset($this->listeners[$event])) {
             return;
@@ -26,7 +26,7 @@ class InMemoryPubSub implements EventPublisher, EventSubscriber
     /**
      * @inheritdoc
      */
-    public function on(string $event, callable $callback)
+    public function on($event, callable $callback)
     {
         $this->listeners[$event][] = $callback;
     }
