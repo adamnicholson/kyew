@@ -2,6 +2,7 @@
 
 namespace Kyew;
 
+use Kyew\PubSub\InMemoryPubSub;
 use Kyew\Queue\SynchronousQueue;
 use PHPUnit_Framework_TestCase;
 
@@ -16,20 +17,7 @@ class KyewTest extends PHPUnit_Framework_Testcase
     {
         parent::setUp();
 
-        $pubsub = new class implements  EventPublisher, EventSubscriber {
-            private $listeners = [];
-            public function publish(string $event, $data) {
-                if (isset($this->listeners[$event])) {
-                    foreach ($this->listeners[$event] as $listener) {
-                        call_user_func($listener, $data);
-                    }
-                }
-            }
-            public function on(string $event, callable $callback) {
-                $this->listeners[$event][] = $callback;
-            }
-        };
-
+        $pubsub = new InMemoryPubSub;
         $this->kyew = new Kyew(
             $pubsub,
             new SynchronousQueue($pubsub)
