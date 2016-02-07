@@ -3,6 +3,7 @@
 namespace Kyew;
 
 use Kyew\Exception\TaskNotCompletedException;
+use Kyew\Exception\TimeoutException;
 
 class Task
 {
@@ -41,10 +42,19 @@ class Task
 
     /**
      * Block further script execution utnil isComplete() returns true
+     * @param int $timeout Number of seconds to wait before throwing a TimeoutException
+     * @throws TimeoutException
      */
-    public function await()
+    public function await($timeout = 30)
     {
+        $started = time();
         while (true) {
+
+            if (time() >= $started + $timeout) {
+                // @todo Improve exception message
+                throw new TimeoutException;
+            }
+
             if ($this->isComplete()) {
                 break;
             }

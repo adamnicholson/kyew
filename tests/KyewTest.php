@@ -2,9 +2,11 @@
 
 namespace Kyew;
 
+use Kyew\Exception\TimeoutException;
 use Kyew\PubSub\InMemoryPubSub;
 use Kyew\Queue\SynchronousQueue;
 use PHPUnit_Framework_TestCase;
+use Prophecy\Argument;
 
 class KyewTest extends PHPUnit_Framework_Testcase
 {
@@ -58,5 +60,26 @@ class KyewTest extends PHPUnit_Framework_Testcase
         $task->await();
         $this->assertTrue($task->isComplete());
         $this->assertEquals('Fizz buzz!', $task->getReturnValue());
+    }
+
+    public function test_async_await_throws_timeout_exception_if_subscriber_does_not_trigger_completed_event()
+    {
+        $subscriber = $this->prophesize(EventSubscriber::class);
+        $queue = $this->prophesize(Queue::class);
+        $this->kyew = new Kyew(
+            $subscriber->reveal(),
+            $queue->reveal()
+        );
+
+        $queue->push(Argument::any(), Argument::that(function (callable $task) {
+            return true;
+        }))->shouldBeCalled();
+
+        $task = $this->kyew->async(function () {
+            return 'Fizz buzz!';
+        });
+
+        $this->expectException(TimeoutException::class);
+        $task->await(1);
     }
 }
