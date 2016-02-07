@@ -17,7 +17,39 @@ Some examples where this could be useful include:
 
 ## Example
 
-@todo
+### Await a single task
+
+```php
+$task = $kyew->async(function () {
+    // Do some slow CPU intensive operation
+    return 'foo';
+});
+$response = $task->await(); // (string) "foo"
+```
+
+### Execute multiple tasks asynchronously
+
+```php
+$tasks['google'] = $this->kyew->async(function () {
+    return file_get_contents('http://google.com');
+});
+$tasks['bbc'] = $this->kyew->async(function () {
+    return file_get_contents('http://bbc.co.uk');
+});
+$tasks['yahoo'] = $this->kyew->async(function () {
+    return file_get_contents('http://yahoo.com');
+});
+
+$pages = [
+    'google' => $tasks['google']->await(),
+    'bbc' => $tasks['bbc']->await(),
+    'yahoo' => $tasks['yahoo']->await(),
+];
+
+$pages['google']'; // (string) HTML source for Google's homepage 
+$pages['yahoo']'; // (string) HTML source for Yahoo's homepage 
+$pages['bbc']'; // (string) HTML source for BBC's homepage 
+```
 
 ## Installation
 

@@ -70,6 +70,30 @@ class KyewTest extends PHPUnit_Framework_Testcase
         $this->assertEquals('Fizz buzz!', $task->await());
     }
 
+    public function test_example_concurrent_http_requests()
+    {
+        $tasks = [];
+        $tasks['google'] = $this->kyew->async(function () {
+            return file_get_contents('http://google.com');
+        });
+        $tasks['bbc'] = $this->kyew->async(function () {
+            return file_get_contents('http://bbc.co.uk');
+        });
+        $tasks['yahoo'] = $this->kyew->async(function () {
+            return file_get_contents('http://yahoo.com');
+        });
+
+        $pages = [
+            'google' => $tasks['google']->await(),
+            'bbc' => $tasks['bbc']->await(),
+            'yahoo' => $tasks['yahoo']->await(),
+        ];
+
+        $this->assertRegExp('/<title>Google<\/title>/', $pages['google']);
+        $this->assertRegExp('/<title>Yahoo<\/title>/', $pages['yahoo']);
+        $this->assertRegExp('/<title>BBC - Home<\/title>/', $pages['bbc']);
+    }
+
     public function test_async_await_throws_timeout_exception_if_subscriber_does_not_trigger_completed_event()
     {
         $subscriber = $this->prophesize(EventSubscriber::class);
