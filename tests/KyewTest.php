@@ -62,6 +62,14 @@ class KyewTest extends PHPUnit_Framework_Testcase
         $this->assertEquals('Fizz buzz!', $task->getReturnValue());
     }
 
+    public function test_async_await_directly_returns_the_return_value()
+    {
+        $task = $this->kyew->async(function () {
+            return 'Fizz buzz!';
+        });
+        $this->assertEquals('Fizz buzz!', $task->await());
+    }
+
     public function test_async_await_throws_timeout_exception_if_subscriber_does_not_trigger_completed_event()
     {
         $subscriber = $this->prophesize(EventSubscriber::class);

@@ -43,6 +43,7 @@ class Task
     /**
      * Block further script execution utnil isComplete() returns true
      * @param int $timeout Number of seconds to wait before throwing a TimeoutException
+     * @return mixed The return value of the completed task
      * @throws TimeoutException
      */
     public function await($timeout = 30)
@@ -56,7 +57,7 @@ class Task
             }
 
             if ($this->isComplete()) {
-                break;
+                return $this->getReturnValue();
             }
         }
     }

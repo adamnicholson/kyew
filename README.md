@@ -40,8 +40,8 @@ The callable is immediately handed to the queue library to be executed. The `Tas
 `await` will block further code execution until the given Task has completed exectuing.
 
 ```php
-$task->await();
-echo $task->getReturnValue(); // (string) "foo"
+$response = $task->await();
+echo $response; // (string) "foo"
 ```
 
 ## Contributing
