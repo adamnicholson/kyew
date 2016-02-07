@@ -73,20 +73,16 @@ class KyewTest extends PHPUnit_Framework_Testcase
     public function test_example_concurrent_http_requests()
     {
         $tasks = [];
-        $tasks['google'] = $this->kyew->async(function () {
-            return file_get_contents('http://google.com');
-        });
-        $tasks['bbc'] = $this->kyew->async(function () {
-            return file_get_contents('http://bbc.co.uk');
-        });
-        $tasks['yahoo'] = $this->kyew->async(function () {
-            return file_get_contents('http://yahoo.com');
-        });
+        foreach (['http://google.com', 'http://bbc.co.uk', 'http://yahoo.com'] as $url) {
+            $tasks[$url] = $this->kyew->async(function () use ($url) {
+                return file_get_contents($url);
+            });
+        }
 
         $pages = [
-            'google' => $tasks['google']->await(),
-            'bbc' => $tasks['bbc']->await(),
-            'yahoo' => $tasks['yahoo']->await(),
+            'google' => $tasks['http://google.com']->await(),
+            'bbc' => $tasks['http://bbc.co.uk']->await(),
+            'yahoo' => $tasks['http://yahoo.com']->await(),
         ];
 
         $this->assertRegExp('/<title>Google<\/title>/', $pages['google']);
