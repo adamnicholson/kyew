@@ -58,8 +58,7 @@ class Task
         while (true) {
 
             if (time() >= $started + $timeout) {
-                // @todo Improve exception message
-                throw new TimeoutException;
+                throw new TimeoutException("Task execution has exceeded the {$timeout} second limit");
             }
 
             if ($this->isComplete()) {
@@ -70,7 +69,6 @@ class Task
 
     /**
      * @return bool
-     * @todo Fire $this->subscriber->recheck()
      */
     public function isComplete(): bool
     {
@@ -85,7 +83,6 @@ class Task
     public function getReturnValue()
     {
         if (!$this->isComplete()) {
-            // @todo Improve exception message
             throw new TaskNotCompletedException('Cannot get the return value until the task has completed');
         }
 
