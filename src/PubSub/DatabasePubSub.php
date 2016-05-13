@@ -36,7 +36,7 @@ class DatabasePubSub implements EventPublisher, EventSubscriber
      */
     public function publish($event, $data)
     {
-        $statement = $this->connection->prepare("INSERT INTO {$this->table} (key, value) VALUES (?, ?)");
+        $statement = $this->connection->prepare("INSERT INTO {$this->table} (`key`, `value`) VALUES (?, ?)");
         $statement->execute([$event, $data]);
     }
 
@@ -65,7 +65,7 @@ class DatabasePubSub implements EventPublisher, EventSubscriber
             $listener($row->value);
         }
 
-        $statement = $this->connection->prepare("DELETE FROM {$this->table} WHERE key = ?");
+        $statement = $this->connection->prepare("DELETE FROM {$this->table} WHERE `key` = ?");
         $statement->execute([$event]);
     }
 }
