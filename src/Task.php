@@ -12,9 +12,13 @@ class Task
      */
     private $subscriber;
     /**
-     * @var string
+     * @var string The raw task ID
      */
     private $taskId;
+    /**
+     * @var string The key used by the event subscriber to identify this task
+     */
+    private $subscriberKey;
     /**
      * @var bool Whether the task has completed
      */
@@ -33,8 +37,9 @@ class Task
     {
         $this->subscriber = $subscriber;
         $this->taskId = $taskId;
+        $this->subscriberKey = "kyew:task:{$this->taskId}";
 
-        $this->subscriber->on("kyew:task:{$this->taskId}", function ($returnValue) {
+        $this->subscriber->on($this->subscriberKey, function ($returnValue) {
             $this->returnValue = $returnValue;
             $this->complete = true;
         });
@@ -69,6 +74,8 @@ class Task
      */
     public function isComplete(): bool
     {
+        $this->subscriber->recheck($this->subscriberKey);
+
         return $this->complete;
     }
 
