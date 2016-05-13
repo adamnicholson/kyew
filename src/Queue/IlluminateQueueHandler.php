@@ -18,10 +18,10 @@ class IlluminateQueueHandler
      * @param EventPublisher $publisher
      * @param Serializer $serializer
      */
-    public function __construct(EventPublisher $publisher, Serializer $serializer = null)
+    public function __construct(EventPublisher $publisher, Serializer $serializer)
     {
         $this->publisher = $publisher;
-        $this->serializer = $serializer ?: new Serializer;
+        $this->serializer = $serializer;
     }
 
     /**

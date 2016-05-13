@@ -21,10 +21,10 @@ class IlluminateQueue implements Queue
      * @param \Illuminate\Contracts\Queue\Queue $illuminateQueue
      * @param Serializer $serializer
      */
-    public function __construct(\Illuminate\Contracts\Queue\Queue $illuminateQueue, Serializer $serializer = null)
+    public function __construct(\Illuminate\Contracts\Queue\Queue $illuminateQueue, Serializer $serializer)
     {
         $this->illuminateQueue = $illuminateQueue;
-        $this->serializer = $serializer ?: new Serializer;
+        $this->serializer = $serializer;
     }
 
     /**
