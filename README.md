@@ -11,9 +11,8 @@ Some examples where this could be useful include:
 
 ## Requirements
 
-- PHP7
+- PHP7.0+
 - A queue package (see [supported queues pacakges](#))
-- Redis server
 
 ## Example
 
@@ -30,27 +29,27 @@ $response = $task->await(); // (string) "foo"
 ### Execute multiple tasks simultaneously
 
 ```php
-$tasks = [];
-foreach (['http://google.com', 'http://bbc.co.uk', 'http://yahoo.com'] as $url) {
-    $tasks[$url] = $this->kyew->async(function () use ($url) {
-        return file_get_contents($url);
-    });
-}
+$google = $kyew->async(function () {
+    return file_get_contents('http://google.com');
+});
 
-$pages = [
-    'google' => $tasks['http://google.com']->await(),
-    'bbc' => $tasks['http://bbc.co.uk']->await(),
-    'yahoo' => $tasks['http://yahoo.com']->await(),
-];
+$bbc = $kyew->async(function () {
+    return file_get_contents('http://bbc.co.uk');
+});
 
-$pages['google']'; // (string) HTML source for Google's homepage 
-$pages['yahoo']'; // (string) HTML source for Yahoo's homepage 
-$pages['bbc']'; // (string) HTML source for BBC's homepage 
+// Both closures have already started executing in the background
+
+$google->await(); // (string) HTML source for Google's homepage 
+$bbc->await(); // (string) HTML source for BBC's homepage 
 ```
 
 ## Installation
 
-@todo
+Kyew can be installed with Composer
+
+```
+composer require adamnicholson/kyew
+```
 
 ## API
 
@@ -72,6 +71,16 @@ The callable is immediately handed to the queue library to be executed. The `Tas
 $response = $task->await();
 echo $response; // (string) "foo"
 ```
+
+## How it Works
+
+When tasks are passed to `$task = $kyew->async($task)`, they are immediately handed off to the underlying queue package, along with an additional instruction to then store the task return value back into a persistance layer (eg. a database).
+
+On calling `$task->await()`, we simply sit in a loop until either that value appears in the persistance layer, or until we reach the timeout threshold.
+
+### Supported Queue Packages
+
+Currently `Kyew` only supports `illuminate/kyew` for its underlying queue infrastructure.
 
 ## Contributing
 
