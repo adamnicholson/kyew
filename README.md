@@ -20,7 +20,7 @@ Some examples where this could be useful include:
 
 ```php
 $task = $kyew->async(function () {
-    // Do some slow CPU intensive operation
+    // Do some slow I/O operation
     return 'foo';
 });
 $response = $task->await(); // (string) "foo"
@@ -53,18 +53,18 @@ composer require adamnicholson/kyew
 
 ## API
 
-### `Kyew::async(callable $task)`
+### `Kyew::async(callable $task): Task`
 `async` accepts a single callable as its only parameter and will return an instance of `Task`. 
 
 ```php
 $task = $kyew->async(function () {
-    // Do some slow CPU intensive operation
+    // Do some slow I/O operation
     return 'foo';
 });
 ```
 The callable is immediately handed to the queue library to be executed. The `Task` instance will listen to the queue process and be notified when the callable has finished executing. 
 
-### `Task::await()`
+### `Task::await(): void`
 `await` will block further code execution until the given Task has completed exectuing.
 
 ```php
@@ -80,7 +80,7 @@ On calling `$task->await()`, we simply sit in a loop until either that value app
 
 ### Supported Queue Packages
 
-Currently `Kyew` only supports `illuminate/kyew` for its underlying queue infrastructure.
+Currently `Kyew` only supports `illuminate/queue` for its underlying queue infrastructure.
 
 ## Contributing
 
