@@ -73,7 +73,7 @@ class KyewTest extends PHPUnit_Framework_Testcase
     public function test_example_concurrent_http_requests()
     {
         $tasks = [];
-        foreach (['http://google.com', 'http://bbc.co.uk', 'http://yahoo.com'] as $url) {
+        foreach (['http://google.com', 'http://bbc.co.uk', 'http://reddit.com'] as $url) {
             $tasks[$url] = $this->kyew->async(function () use ($url) {
                 return file_get_contents($url);
             });
@@ -82,11 +82,11 @@ class KyewTest extends PHPUnit_Framework_Testcase
         $pages = [
             'google' => $tasks['http://google.com']->await(),
             'bbc' => $tasks['http://bbc.co.uk']->await(),
-            'yahoo' => $tasks['http://yahoo.com']->await(),
+            'yahoo' => $tasks['http://reddit.com']->await(),
         ];
 
         $this->assertRegExp('/<title>Google<\/title>/', $pages['google']);
-        $this->assertRegExp('/<title>Yahoo<\/title>/', $pages['yahoo']);
+        $this->assertRegExp('/<title>reddit/', $pages['yahoo']);
         $this->assertRegExp('/<title>BBC - Home<\/title>/', $pages['bbc']);
     }
 
