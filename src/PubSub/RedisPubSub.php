@@ -31,7 +31,7 @@ class RedisPubSub implements EventPublisher, EventSubscriber
      */
     public function publish($event, $data)
     {
-        $this->client->set($event, $data);
+        $this->client->set($event, serialize($data));
     }
 
     /**
@@ -52,6 +52,8 @@ class RedisPubSub implements EventPublisher, EventSubscriber
         if (!$value) {
             return;
         }
+
+        $value = unserialize($value);
 
         foreach ($this->listeners[$event] ?? [] as $listener) {
             $listener($value);
