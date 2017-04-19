@@ -27,17 +27,28 @@ class Task
      * @var mixed The return value of the task
      */
     private $returnValue;
+    /**
+     * @var int
+     */
+    private $tick;
 
     /**
      * Task constructor.
      * @param EventSubscriber $subscriber
+     *
      * @param string $taskId
+     *  The unique ID for this tasks
+     *
+     * @param int $tick
+     *  In microseconds, how long to wait between each event loop wait when await() is
+     *  called.
      */
-    public function __construct(EventSubscriber $subscriber, string $taskId)
+    public function __construct(EventSubscriber $subscriber, string $taskId, int $tick)
     {
         $this->subscriber = $subscriber;
         $this->taskId = $taskId;
         $this->subscriberKey = "kyew:task:{$this->taskId}";
+        $this->tick = $tick;
 
         $this->subscriber->on($this->subscriberKey, function ($returnValue) {
             $this->returnValue = $returnValue;
@@ -64,6 +75,8 @@ class Task
             if ($this->isComplete()) {
                 return $this->getReturnValue();
             }
+
+            usleep($this->tick);
         }
     }
 
