@@ -1,7 +1,4 @@
 language: php
-php:
-  - 7.0
-  - 7.1
 
 services:
   - docker
@@ -10,7 +7,7 @@ before_install:
   - composer install --no-interaction --ignore-platform-reqs
   - docker pull php:7.0
   - docker pull php:7.1
-  - docker run --name redis --rm -d -p6379 redis
+  - docker run --name redis -d -p6379 redis
 
 script:
   - docker run --rm --link redis -v $(pwd):/opt -w /opt php:7.0-cli vendor/bin/phpunit
