@@ -9,7 +9,7 @@ class RedisPubSubTest extends \PHPUnit_Framework_TestCase
 {
     public function test_published_messages_fire_event_listeners_when_rechech_called()
     {
-        $redis = new Client;
+        $redis = new Client('tcp://redis:6379');
         $pubsub = new RedisPubSub($redis);
         try {
             $redis->connect();
