@@ -2,11 +2,10 @@
 
 namespace Kyew\PubSub;
 
-use Kyew\EventPublisher;
-use Kyew\EventSubscriber;
+use Kyew\PubSub;
 use Predis\Client;
 
-class RedisPubSub implements EventPublisher, EventSubscriber
+class RedisPubSub implements PubSub
 {
     /**
      * @var array

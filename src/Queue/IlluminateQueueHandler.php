@@ -2,23 +2,23 @@
 
 namespace Kyew\Queue;
 
-use Kyew\EventPublisher;
+use Kyew\PubSub;
 use SuperClosure\Serializer;
 
 class IlluminateQueueHandler
 {
     private $serializer;
     /**
-     * @var EventPublisher
+     * @var PubSub
      */
     private $publisher;
 
     /**
      * IlluminateQueueHandler constructor.
-     * @param EventPublisher $publisher
+     * @param PubSub $publisher
      * @param Serializer $serializer
      */
-    public function __construct(EventPublisher $publisher, Serializer $serializer)
+    public function __construct(PubSub $publisher, Serializer $serializer)
     {
         $this->publisher = $publisher;
         $this->serializer = $serializer;

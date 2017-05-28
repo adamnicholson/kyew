@@ -8,7 +8,7 @@ use Kyew\Exception\TimeoutException;
 class Task
 {
     /**
-     * @var EventSubscriber
+     * @var PubSub
      */
     private $subscriber;
     /**
@@ -34,7 +34,7 @@ class Task
 
     /**
      * Task constructor.
-     * @param EventSubscriber $subscriber
+     * @param PubSub $subscriber
      *
      * @param string $taskId
      *  The unique ID for this tasks
@@ -43,7 +43,7 @@ class Task
      *  In microseconds, how long to wait between each event loop wait when await() is
      *  called.
      */
-    public function __construct(EventSubscriber $subscriber, string $taskId, int $tick)
+    public function __construct(PubSub $subscriber, string $taskId, int $tick)
     {
         $this->subscriber = $subscriber;
         $this->taskId = $taskId;

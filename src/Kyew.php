@@ -5,7 +5,7 @@ namespace Kyew;
 class Kyew
 {
     /**
-     * @var EventSubscriber
+     * @var PubSub
      */
     private $subscriber;
     /**
@@ -19,10 +19,10 @@ class Kyew
 
     /**
      * Kyew constructor.
-     * @param EventSubscriber $subscriber
+     * @param PubSub $subscriber
      * @param Queue $queue
      */
-    public function __construct(EventSubscriber $subscriber, Queue $queue)
+    public function __construct(PubSub $subscriber, Queue $queue)
     {
         $this->subscriber = $subscriber;
         $this->queue = $queue;

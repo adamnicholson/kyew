@@ -92,7 +92,7 @@ class KyewTest extends PHPUnit_Framework_Testcase
 
     public function test_async_await_throws_timeout_exception_if_subscriber_does_not_trigger_completed_event()
     {
-        $subscriber = $this->prophesize(EventSubscriber::class);
+        $subscriber = $this->prophesize(PubSub::class);
         $queue = $this->prophesize(Queue::class);
         $this->kyew = new Kyew(
             $subscriber->reveal(),

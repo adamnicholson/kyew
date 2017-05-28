@@ -2,10 +2,9 @@
 
 namespace Kyew\PubSub;
 
-use Kyew\EventPublisher;
-use Kyew\EventSubscriber;
+use Kyew\PubSub;
 
-class InMemoryPubSub implements EventPublisher, EventSubscriber
+class InMemoryPubSub implements PubSub
 {
     private $listeners = [];
 

@@ -2,21 +2,21 @@
 
 namespace Kyew\Queue;
 
-use Kyew\EventPublisher;
+use Kyew\PubSub;
 use Kyew\Queue;
 
 class SynchronousQueue implements Queue
 {
     /**
-     * @var EventPublisher
+     * @var PubSub
      */
     private $publisher;
 
     /**
      * SynchronousQueue constructor.
-     * @param EventPublisher $publisher
+     * @param PubSub $publisher
      */
-    public function __construct(EventPublisher $publisher)
+    public function __construct(PubSub $publisher)
     {
         $this->publisher = $publisher;
     }

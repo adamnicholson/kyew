@@ -2,10 +2,9 @@
 
 namespace Kyew\PubSub;
 
-use Kyew\EventPublisher;
-use Kyew\EventSubscriber;
+use Kyew\PubSub;
 
-class DatabasePubSub implements EventPublisher, EventSubscriber
+class DatabasePubSub implements PubSub
 {
     /**
      * @var \PDO

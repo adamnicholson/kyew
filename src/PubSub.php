@@ -2,7 +2,7 @@
 
 namespace Kyew;
 
-interface EventSubscriber
+interface PubSub
 {
     /**
      * Listen for an event, and trigger a callback when fired.
@@ -25,7 +25,7 @@ interface EventSubscriber
      *
      * This can be used if the event may have been fired prior to listening for the event with on().
      *
-     * It is also useful for EventSubscriber implementations which cannot fully implement the Pub/Sub
+     * It is also useful for PubSub implementations which cannot fully implement the Pub/Sub
      * pattern, meaning you must manually tell the subscriber to re-check if the event has been
      * fired yet or not.
      *
@@ -36,4 +36,17 @@ interface EventSubscriber
      * @return mixed
      */
     public function recheck($event);
+
+    /**
+     * Publish a message.
+     *
+     * <code>
+     *  $publisher->publish('order-event', ['order-id' => 1, 'event-type' => 'dispatched']);
+     * </code>
+     *
+     * @param string $event
+     * @param $data
+     * @return mixed
+     */
+    public function publish($event, $data);
 }
