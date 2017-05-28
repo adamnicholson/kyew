@@ -1,18 +1,18 @@
 # Kyew
 
-> This is a work in progress.
+[![Build Status](https://travis-ci.org/adamnicholson/kyew.svg?branch=master)](https://travis-ci.org/adamnicholson/kyew)
 
 Kyew is a thin layer on top of your existing *queue* package allowing you to push tasks to the queue and await the task completing.
 
 Some examples where this could be useful include:
 
-- Executing multiple tasks asynchronously
+- Executing multiple tasks concurrently
 - Pushing resource intensive tasks to a more performant server
 
 ## Requirements
 
 - PHP7.0+
-- A queue package (see [supported queues pacakges](#))
+- A queue package (see [supported queues packages](#supported-queue-packages))
 
 ## Example
 
@@ -78,7 +78,7 @@ When tasks are passed to `$task = $kyew->async($task)`, they are immediately han
 
 On calling `$task->await()`, we simply sit in a loop until either that value appears in the persistance layer, or until we reach the timeout threshold.
 
-### Supported Queue Packages
+## Supported Queue Packages
 
 Currently `Kyew` only supports `illuminate/queue` for its underlying queue infrastructure.
 
